@@ -28,7 +28,6 @@ export const fetchCollectionsStartAsync = () => {
 
     try {
       let snap = await getDocs(collectionRef);
-      console.log("ShopData:", snap);
       const mapObj = convertCollectionsSnapshotToMap(snap);
 
       dispatch(fetchCollectionsSuccess(mapObj));

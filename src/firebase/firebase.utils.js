@@ -2,19 +2,21 @@ import { initializeApp } from "firebase/app";
 import {
   getFirestore,
   getDoc,
+  doc,
   collection,
   writeBatch,
+  setDoc,
 } from "firebase/firestore/lite";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 // TODO: Replace the following with your app's Firebase project configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAxG86V2qxq2s1dV3_ie-pLIpu7g6CvdgY",
-  authDomain: "crown-db-be62b.firebaseapp.com",
-  projectId: "crown-db-be62b",
-  storageBucket: "crown-db-be62b.appspot.com",
-  messagingSenderId: "649155163449",
-  appId: "1:649155163449:web:fc13bf334e3fc577bda4e8",
+  apiKey: process.env.REACT_APP_FIRE_B_API_KEY,
+  authDomain: process.env.REACT_APP_FIRE_B_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIRE_B_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIRE_B_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIRE_B_MESSAGE_SENDER_ID,
+  appId: process.env.REACT_APP_FIRE_B_APP_ID,
 };
 
 const app = initializeApp(firebaseConfig);
@@ -24,18 +26,16 @@ export const auth = getAuth(app);
 
 export const createUserProfileDocument = async (userAuth, additionalData) => {
   if (!userAuth) return;
-  const users = collection(fireStore, "users");
-  // const userRef = firestore.doc(`users/${userAuth.uid}`);
-  const userRef = await getDoc(`${users}/${userAuth.uid}`);
 
-  const snapShot = await userRef.get();
-  console.log("User snap: ", snapShot);
+  const userRef = doc(fireStore, "users", userAuth.uid);
 
-  if (!snapShot.exists) {
+  const snapShot = await getDoc(userRef);
+
+  if (!snapShot.exists()) {
     const { displayName, email } = userAuth;
     const createdAt = new Date();
     try {
-      await userRef.set({
+      await setDoc(userRef, {
         displayName,
         email,
         createdAt,
@@ -46,7 +46,7 @@ export const createUserProfileDocument = async (userAuth, additionalData) => {
     }
   }
 
-  return userRef;
+  return snapShot;
 };
 
 export const addCollectionAndDocuments = async (
